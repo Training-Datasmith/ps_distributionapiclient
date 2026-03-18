@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PrestaShop\Module\DistributionApiClient\Controller\Admin;
 
 use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
