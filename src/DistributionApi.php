@@ -46,34 +46,21 @@ class DistributionApi
     /** @var ModuleDataProvider */
     private $moduleDataProvider;
 
-    /** @var string */
-    private $prestashopVersion;
-
-    /** @var string */
-    private $downloadDirectory;
-
-    /** @var ShopDataProvider */
-    private $shopDataProvider;
-
-    /** @var string */
-    private $projectDirectory;
+    private readonly string $downloadDirectory;
 
     public function __construct(
         CircuitBreakerInterface $circruitBreaker,
         SourceHandlerFactory $sourceHandlerFactory,
         ModuleDataProvider $moduleDataProvider,
-        ShopDataProvider $shopDataProvider,
-        string $prestashopVersion,
+        private readonly ShopDataProvider $shopDataProvider,
+        private readonly string $prestashopVersion,
         string $downloadDirectory,
-        string $projectDirectory,
+        private readonly string $projectDirectory,
     ) {
         $this->circruitBreaker = $circruitBreaker;
         $this->sourceHandlerFactory = $sourceHandlerFactory;
         $this->moduleDataProvider = $moduleDataProvider;
-        $this->prestashopVersion = $prestashopVersion;
         $this->downloadDirectory = rtrim($downloadDirectory, '/');
-        $this->shopDataProvider = $shopDataProvider;
-        $this->projectDirectory = $projectDirectory;
     }
 
     /**
@@ -142,8 +129,6 @@ class DistributionApi
 
     /**
      * Returns the URL to the list of modules for this version
-     *
-     * @return string
      */
     private function getModulesListUrl(): string
     {
@@ -167,7 +152,7 @@ class DistributionApi
             return $url;
         }
 
-        $separator = (strpos($url, '?') !== false) ? '&' : '?';
+        $separator = (str_contains($url, '?')) ? '&' : '?';
 
         // Add shop URL
         $shopUrl = urlencode($this->shopDataProvider->getShopUrl());
@@ -191,8 +176,6 @@ class DistributionApi
 
     /**
      * @param array<string, string> $module
-     *
-     * @return void
      */
     private function doDownload(array $module): void
     {
@@ -222,18 +205,16 @@ class DistributionApi
     }
 
     /**
-     * @param string $endpoint
-     *
      * @return array<array<string, string>>
      */
     private function getResponse(string $endpoint): array
     {
-        $response = $this->circruitBreaker->call($endpoint, [], function () {
+        $response = $this->circruitBreaker->call($endpoint, [], function (): void {
             throw new \PrestaShopException('Unable to retrieve informations from Distribution API : cannot automatically update native modules for the moment.');
         });
 
         /** @var array<array<string, string>> $json */
-        $json = json_decode($response, true) ?: [];
+        $json = json_decode((string) $response, true) ?: [];
 
         return $json;
     }

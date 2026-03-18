@@ -28,13 +28,13 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  */
 class CachedResponse implements ResponseInterface
 {
-    private int $statusCode;
+    private readonly int $statusCode;
 
     /**
      * @var string[][]
      */
-    private array $headers;
-    private string $content;
+    private readonly array $headers;
+    private readonly string $content;
 
     /**
      * @var mixed[]|array|null
@@ -108,8 +108,6 @@ class CachedResponse implements ResponseInterface
     }
 
     /**
-     * @param bool $throw
-     *
      * @return array|mixed[]
      */
     public function toArray(bool $throw = true): array

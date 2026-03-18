@@ -32,8 +32,6 @@ class ShopDataProvider
 {
     /**
      * Returns the default URL to shop's Front office
-     *
-     * @return string
      */
     public function getShopUrl(): string
     {

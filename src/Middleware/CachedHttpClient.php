@@ -28,14 +28,12 @@ use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
 class CachedHttpClient implements HttpClientInterface
 {
-    private CacheProvider $cache;
+    private readonly CacheProvider $cache;
 
-    private HttpClientInterface $client;
+    private readonly HttpClientInterface $client;
 
     /**
-     * @param CacheProvider $cache
      * @param array<string, mixed> $defaultOptions
-     * @param HttpClientInterface|null $client
      */
     public function __construct(CacheProvider $cache, array $defaultOptions = [], ?HttpClientInterface $client = null)
     {
@@ -44,11 +42,8 @@ class CachedHttpClient implements HttpClientInterface
     }
 
     /**
-     * @param string $method
-     * @param string $url
      * @param array<string, mixed> $options
      *
-     * @return ResponseInterface
      */
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
@@ -78,8 +73,6 @@ class CachedHttpClient implements HttpClientInterface
 
     /**
      * @param array<string, mixed> $options
-     *
-     * @return static
      */
     public function withOptions(array $options): static
     {
