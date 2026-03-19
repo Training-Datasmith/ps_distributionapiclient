@@ -195,13 +195,17 @@ class DistributionApi
 
     private function getModuleDownloadDirectory(string $moduleName): string
     {
+        if (str_contains($moduleName, '/') || str_contains($moduleName, '\\')) {
+            throw new RuntimeException('Invalid module name: path separators are not allowed.');
+        }
+
         return $this->downloadDirectory . '/' . $moduleName . '.zip';
     }
 
     private function createDownloadDirectoryIfNeeded(string $downloadPath): void
     {
         if (!file_exists(dirname($downloadPath))) {
-            mkdir(dirname($downloadPath), 0777, true);
+            mkdir(dirname($downloadPath), 0755, true);
         }
     }
 
