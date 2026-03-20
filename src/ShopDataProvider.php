@@ -18,29 +18,26 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-declare(strict_types=1);
-
-namespace PrestaShop\Module\DistributionApiClient;
+declare (strict_types=1);
+namespace Presta_Shop\Module\Distribution_Api_Client;
 
 use Context;
 use Link;
 use RuntimeException;
-
 /**
  * Provides information about the shop, to be added to API calls
  */
-class ShopDataProvider
+class Shop_Data_Provider
 {
     /**
      * Returns the default URL to shop's Front office
      */
-    public function getShopUrl(): string
+    public function get_shop_url(): string
     {
-        $context = Context::getContext();
+        $context = Context::get_context();
         if (!$context instanceof Context || !$context->link instanceof Link) {
             throw new RuntimeException('Unable to retrieve the contextual Link instance');
         }
-
-        return $context->link->getBaseLink();
+        return $context->link->get_base_link();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,137 +19,89 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+namespace Presta_Shop\Module\Distribution_Api_Client\Middleware;
 
-namespace PrestaShop\Module\DistributionApiClient\Middleware;
-
-use Symfony\Component\HttpClient\Exception\JsonException;
-use Symfony\Contracts\HttpClient\ResponseInterface;
-
+use Symfony\Component\Http_Client\Exception\Json_Exception;
+use Symfony\Contracts\Http_Client\Response_Interface;
 /**
  * Simple DTO containing the response data to allow serializing it into cache.
  */
-class CachedResponse implements ResponseInterface
+class Cached_Response implements Response_Interface
 {
-    private readonly int $statusCode;
-
+    private readonly int $status_code;
     /**
      * @var string[][]
      */
     private readonly array $headers;
     private readonly string $content;
-
     /**
      * @var mixed[]|array|null
      */
-    private ?array $jsonData = null;
-
+    private ?array $json_data = null;
     /**
      * @var array<string, mixed>
      */
     private array $info;
-
-    public function __construct(ResponseInterface $response)
+    public function __construct(Response_Interface $response)
     {
-        $info = $response->getInfo();
+        $info = $response->get_info();
         if (is_array($info)) {
-            $this->info = [
-                'canceled' => $info['canceled'] ?? false,
-                'error' => $info['error'] ?? null,
-                'http_code' => $info['http_code'] ?? 0,
-                'http_method' => $info['http_method'] ?? 'GET',
-                'redirect_count' => $info['redirect_count'] ?? 0,
-                'redirect_url' => $info['redirect_url'] ?? null,
-                'start_time' => $info['start_time'] ?? 0.0,
-                'url' => $info['url'] ?? '',
-                'user_data' => $info['user_data'] ?? null,
-            ];
+            $this->info = ['canceled' => $info['canceled'] ?? false, 'error' => $info['error'] ?? null, 'http_code' => $info['http_code'] ?? 0, 'http_method' => $info['http_method'] ?? 'GET', 'redirect_count' => $info['redirect_count'] ?? 0, 'redirect_url' => $info['redirect_url'] ?? null, 'start_time' => $info['start_time'] ?? 0.0, 'url' => $info['url'] ?? '', 'user_data' => $info['user_data'] ?? null];
         } elseif (is_object($info)) {
-            $this->info = [
-                'canceled' => property_exists($info, 'canceled') ? $info->canceled : false,
-                'error' => property_exists($info, 'error') ? $info->error : null,
-                'http_code' => property_exists($info, 'http_code') ? $info->http_code : 0,
-                'http_method' => property_exists($info, 'http_method') ? $info->http_method : 'GET',
-                'redirect_count' => property_exists($info, 'redirect_count') ? $info->redirect_count : 0,
-                'redirect_url' => property_exists($info, 'redirect_url') ? $info->redirect_url : null,
-                'start_time' => property_exists($info, 'start_time') ? $info->start_time : 0.0,
-                'url' => property_exists($info, 'url') ? $info->url : '',
-                'user_data' => property_exists($info, 'user_data') ? $info->user_data : null,
-            ];
+            $this->info = ['canceled' => property_exists($info, 'canceled') ? $info->canceled : false, 'error' => property_exists($info, 'error') ? $info->error : null, 'http_code' => property_exists($info, 'http_code') ? $info->http_code : 0, 'http_method' => property_exists($info, 'http_method') ? $info->http_method : 'GET', 'redirect_count' => property_exists($info, 'redirect_count') ? $info->redirect_count : 0, 'redirect_url' => property_exists($info, 'redirect_url') ? $info->redirect_url : null, 'start_time' => property_exists($info, 'start_time') ? $info->start_time : 0.0, 'url' => property_exists($info, 'url') ? $info->url : '', 'user_data' => property_exists($info, 'user_data') ? $info->user_data : null];
         } else {
-            $this->info = [
-                'canceled' => false,
-                'error' => null,
-                'http_code' => 0,
-                'http_method' => 'GET',
-                'redirect_count' => 0,
-                'redirect_url' => null,
-                'start_time' => 0.0,
-                'url' => '',
-                'user_data' => null,
-            ];
+            $this->info = ['canceled' => false, 'error' => null, 'http_code' => 0, 'http_method' => 'GET', 'redirect_count' => 0, 'redirect_url' => null, 'start_time' => 0.0, 'url' => '', 'user_data' => null];
         }
-
-        $this->statusCode = $response->getStatusCode();
-        $this->headers = $response->getHeaders(false);
-        $this->content = $response->getContent(false);
+        $this->status_code = $response->get_status_code();
+        $this->headers = $response->get_headers(false);
+        $this->content = $response->get_content(false);
     }
-
-    public function getStatusCode(): int
+    public function get_status_code(): int
     {
-        return $this->statusCode;
+        return $this->status_code;
     }
-
-    public function getHeaders(bool $throw = true): array
+    public function get_headers(bool $throw = true): array
     {
         return $this->headers;
     }
-
-    public function getContent(bool $throw = true): string
+    public function get_content(bool $throw = true): string
     {
         return $this->content;
     }
-
     /**
      * @return array|mixed[]
      */
-    public function toArray(bool $throw = true): array
+    public function to_array(bool $throw = true): array
     {
         // Code copied from CommonResponseTrait
-        if ('' === $content = $this->getContent($throw)) {
-            throw new JsonException('Response body is empty.');
+        if ('' === $content = $this->get_content($throw)) {
+            throw new Json_Exception('Response body is empty.');
         }
-
-        if (null !== $this->jsonData) {
-            return $this->jsonData;
+        if (null !== $this->json_data) {
+            return $this->json_data;
         }
-
         try {
             $content = json_decode($content, true, 512, \JSON_BIGINT_AS_STRING | \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (\Json_Exception $e) {
             /** @var string $url */
-            $url = $this->getInfo('url');
-            throw new JsonException($e->getMessage() . sprintf(' for "%s".', $url), $e->getCode());
+            $url = $this->get_info('url');
+            throw new Json_Exception($e->get_message() . sprintf(' for "%s".', $url), $e->get_code());
         }
-
         if (!\is_array($content)) {
             /** @var string $url */
-            $url = $this->getInfo('url');
-            throw new JsonException(sprintf('JSON content was expected to decode to an array, "%s" returned for "%s".', get_debug_type($content), $url));
+            $url = $this->get_info('url');
+            throw new Json_Exception(sprintf('JSON content was expected to decode to an array, "%s" returned for "%s".', get_debug_type($content), $url));
         }
-
-        return $this->jsonData = $content;
+        return $this->json_data = $content;
     }
-
     public function cancel(): void
     {
     }
-
-    public function getInfo(?string $type = null): mixed
+    public function get_info(?string $type = null): mixed
     {
         if (null !== $type) {
             return $this->info[$type] ?? null;
         }
-
         return $this->info;
     }
 }
