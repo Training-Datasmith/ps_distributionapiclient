@@ -3,62 +3,62 @@ parameters:
 
 services:
   distributionapiclient.cache.filesystem.adapter:
-    class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+    class: Symfony\Component\Cache\Adapter\Filesystem_Adapter
     arguments:
       - ''
-      - !php/const PrestaShop\Module\DistributionApiClient\DistributionApi::CACHE_LIFETIME_SECONDS
+      - !php/const Presta_Shop\Module\Distribution_Api_Client\Distribution_Api::CACHE_LIFETIME_SECONDS
       - '%ps_cache_dir%/distribution-api'
 
   distributionapiclient.cache.provider:
-    class: Doctrine\Common\Cache\Psr6\DoctrineProvider
-    factory: [ Doctrine\Common\Cache\Psr6\DoctrineProvider, wrap ]
+    class: Doctrine\Common\Cache\Psr6\Doctrine_Provider
+    factory: [ Doctrine\Common\Cache\Psr6\Doctrine_Provider, wrap ]
     arguments:
       - '@distributionapiclient.cache.filesystem.adapter'
 
   distributionapiclient.middleware.cachedhttpclient:
-    class: PrestaShop\Module\DistributionApiClient\Middleware\CachedHttpClient
+    class: Presta_Shop\Module\Distribution_Api_Client\Middleware\Cached_Http_Client
     arguments:
       $cache: '@distributionapiclient.cache.provider'
 
   distributionapiclient.symfony.client:
-    class: PrestaShop\CircuitBreaker\Client\SymfonyHttpClient
+    class: Presta_Shop\Circuit_Breaker\Client\Symfony_Http_Client
     arguments:
       $client: '@distributionapiclient.middleware.cachedhttpclient'
 
   distributionapiclient.circuit_breaker.factory:
-    class: PrestaShop\CircuitBreaker\AdvancedCircuitBreakerFactory
+    class: Presta_Shop\Circuit_Breaker\Advanced_Circuit_Breaker_Factory
 
   distributionapiclient.circuit_breaker.settings:
-    class: PrestaShop\CircuitBreaker\FactorySettings
+    class: Presta_Shop\Circuit_Breaker\Factory_Settings
     arguments:
-      - !php/const PrestaShop\Module\DistributionApiClient\DistributionApi::ALLOWED_FAILURES
-      - !php/const PrestaShop\Module\DistributionApiClient\DistributionApi::TIMEOUT_IN_SECONDS
-      - !php/const PrestaShop\Module\DistributionApiClient\DistributionApi::THRESHOLD_SECONDS
+      - !php/const Presta_Shop\Module\Distribution_Api_Client\Distribution_Api::ALLOWED_FAILURES
+      - !php/const Presta_Shop\Module\Distribution_Api_Client\Distribution_Api::TIMEOUT_IN_SECONDS
+      - !php/const Presta_Shop\Module\Distribution_Api_Client\Distribution_Api::THRESHOLD_SECONDS
     calls:
       - setStorage: [ '@prestashop.core.circuit_breaker.storage' ]
       - setClient: [ '@distributionapiclient.symfony.client' ]
 
   distributionapiclient.circuit_breaker:
-    class: PrestaShop\CircuitBreaker\Contract\CircuitBreakerInterface
+    class: Presta_Shop\Circuit_Breaker\Contract\Circuit_Breaker_Interface
     factory: [ '@distributionapiclient.circuit_breaker.factory', 'create' ]
     arguments: [ '@distributionapiclient.circuit_breaker.settings' ]
 
-  PrestaShop\Module\DistributionApiClient\ShopDataProvider:
-    class: PrestaShop\Module\DistributionApiClient\ShopDataProvider
+  Presta_Shop\Module\Distribution_Api_Client\Shop_Data_Provider:
+    class: Presta_Shop\Module\Distribution_Api_Client\Shop_Data_Provider
 
   distributionapiclient.distribution_api:
-    class: PrestaShop\Module\DistributionApiClient\DistributionApi
+    class: Presta_Shop\Module\Distribution_Api_Client\Distribution_Api
     arguments:
       - '@distributionapiclient.circuit_breaker'
       - '@prestashop.module.factory.sourcehandler'
       - '@prestashop.adapter.data_provider.module'
-      - '@PrestaShop\Module\DistributionApiClient\ShopDataProvider'
+      - '@Presta_Shop\Module\Distribution_Api_Client\Shop_Data_Provider'
       - "@=service('prestashop.core.foundation.version').getSemVersion()"
       - '%ps_cache_dir%/downloads'
       - '%kernel.project_dir%'
     public: true
 
-  PrestaShop\Module\DistributionApiClient\Controller\Admin\TopContributorsController:
+  Presta_Shop\Module\Distribution_Api_Client\Controller\Admin\Top_Contributors_Controller:
     autowire: true
     autoconfigure: true
     public: true
